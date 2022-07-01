@@ -19,5 +19,5 @@ randbits = random.getrandbits(8) #Generador de numeros en bits, donde hay que in
 
 randint = random.randint(1,10) #Generador de valores aleatorios enteros y entre dos valores
 
-print("RandInt:")
+print("RandInt: ")
 print(random.randint(1,10))
