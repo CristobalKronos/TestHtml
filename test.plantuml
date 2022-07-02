@@ -1,0 +1,6 @@
+@startuml
+abstract abstract
+class class
+entity entity
+diamond diamond
+@enduml

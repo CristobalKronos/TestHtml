@@ -3,6 +3,11 @@
 
 /*
 A. Crear e ingresar datos a las tablas
+La base de datos de la Dirección General de Docencia de Pregrado en la UCN, 
+contiene información de las notas finales de los estudiantes en los cursos, 
+a lo largo de varios años
+
+Las tablas a considerar son las siguientes:
 */
 --Estudiante (rut,nombre, carreraMayor, carreraMinor)
 CREATE TABLE Estudiante (rut varchar2(255) NOT NULL, nombre varchar2(255) NOT NULL, carreraMayor number(10) NOT NULL, carreraMinor number(10) NOT NULL, PRIMARY KEY (rut));
@@ -52,7 +57,6 @@ INSERT INTO Notas(correlativoN, nota, Estudianterut, ProfesorParalelocorrelativo
 UPDATE Notas SET nota = ?, Estudianterut = ?, ProfesorParalelocorrelativoPP = ? WHERE correlativoN = ?;
 DELETE FROM Notas WHERE correlativoN = ?;
 
-/*TODO: Aplicar seeders*/
 --Estudiante
 INSERT INTO Estudiante(rut, nombre, carreraMayor, carreraMinor) VALUES (191000137, "Cristobal", "Informatica", "Ingenieria");
 INSERT INTO Estudiante(rut, nombre, carreraMayor, carreraMinor) VALUES (112223334, "Pepe", "Industrial", "Ingenieria");
@@ -86,28 +90,94 @@ INSERT INTO Notas(correlativoN, nota, Estudianterut, ProfesorParalelocorrelativo
 
 /*
 B Aplicar consultas y cambios a la base de datos
-TODO: TERMINAR CON LOS METODOS
 */
 --1
 SELECT e.rut, e.nombre, c.carreraMinor 
 FROM Estudiante e INNER JOIN carrera c on e.carreraMinor = c.codigo 
 WHERE carrera = c.nombre and e.carreraMayor = (SELECT m.codigo from carrera m WHERE m.codigo = e.carreraMayor);
+
 --2
 SELECT e.rut, e.nombre 
 FROM Estudiante e inner join Notas n ON n.rutEstud = e.rut 
 WHERE n.correlativoPP = (SELECT pp.correlativoPP FROM ProfesorParalelo pp WHERE rutProfesor = pp.rutProfesor); 
---3
+
+--3 [Revisar si esta bien el not exist, ya que no se pudo probar, es posible que sea doble not exist y si es iguao o distinto al nombre]
 SELECT e.rut, e.nombre 
 FROM Estudiante e INNER JOIN Notas n ON n.rutEstud = e.rut 
-WHERE NOT EXIST(SELECT * FROM ProfesorParalelo pp INNER JOIN Profesor p ON pp.rutProfesor = p.rut WHERE n.correlativoPP = pp.correlativoPP and p.nombre = nombre);
---4
+WHERE NOT EXIST(SELECT * FROM ProfesorParalelo pp INNER JOIN Profesor p ON pp.rutProfesor = p.rut 
+                WHERE n.correlativoPP = pp.correlativoPP and p.nombre = nombre);
+
+--4 [Revisar si es posible el COUNT]
 SELECT c.nombre, COUNT() 
 FROM Carrera c INNER JOIN Estudiante e in c.codigo = e.carreraMayor 
 GROUP BY(c.nombre) 
 ORDER BY(COUNT);
 
+--5
+SELECT p.nombre, pp.semestre, pp.año, pp.numParalelo, COUNT(SELECT * FROM Notas n WHERE n.correlativoPP = pp.correlativoPP)
+FROM Curso c INNER JOIN ProfesorParalelo pp ON c.codigo = pp.codCurso INNER JOIN Profesor p ON pp.rutProfesor = p.rut
+WHERE AÑO(SYSDATE()) <= pp.año + 5;
+
+--6
+SELECT e.rut, e.nombre 
+FROM Estudiante e 
+WHERE MAX(SELECT n.nota FROM Notas n WHERE n.rutEstud = e.rut) < nota.TEXT;
+
+--7
+SELECT e.rut, e.nombre
+FROM Estudiante e
+WHERE MIN(SELECT n.nota FROM Notas n WHERE e.rut = n.rutEstud) > nota.TEXT;
+
+--8
+SELECT e.rut, e.nombre, n.nota 
+FROM Estudiante INNER JOIN Notas ON e.rut = n.rutEstud 
+WHERE e.carreraMajor = (Select c.codigo FROM Carrera WHERE c.nombre = nombrecarrera.text) GROUP BY(e.rut);
+
+--9 ¿Recibe por pantala un estudiante o un curso?
+
+
+--10
+
+
+--11
+SELECT e.rut, e.nombre, ma.nombre, mi.nombre
+FROM Estudiante e INNER JOIN Carrera ma ON e.carreraMayor = ma.codigo INNER JOIN Carrera mi ON e.carreraMinor = mi.codigo 
+WHERE (ma.nombre = nombreMa.TEXT OR mi.nombre = nombreMi.TEXT) AND 
+(MAX(SELECT nota FROM Notas n WHERE e.rut = n.rutEstud) OR MIN(SELECT nota FROM Notas ni WHERE e.rut = ni.rutEstud))
+ORDER BY ma.nombre, mi.nombre;
+
+--12 [Falta revisarlo]
+SELECT e.rut, e.nombre, cu.nombre, ca.nombre, pp.semestre, pp.año, n.nota 
+FROM Estudiante e RIGHT JOIN Notas n ON e.rut = n.rutEstud 
+RIGHT JOIN ProfesorParalelo pp ON n.correlativoN = pp.correlativoPP
+RIGHT JOIN Curso cu ON pp.codCurso = cu.codigo 
+RIGHT JOIN Carrera ca ON cu.codCarrera = ca.codigo
+WHERE e.rut = rut.TEXT;
+
+--13
+
+
+--14
+
+
+--15
+
+
+--16
+
+
 /*
 * C Programa PL-SQL
+* Recorrer la tabla Movimiento y llevar a cabo las acciones especificadas, sobre la tabla Empleado. Usar PROCEDIMIENTOS ALMACENADOS
+* para las operaciones Insertar, Actualizar y Eliminar.
+* 
+* EMPLEADO (rut, nombre, salario, rutJefe, codDepto)
+* Movimiento (rut, nombre, salario, rutJefe, codDepto, accion)
+*
+* La columna acción en la tabla Movimiento corresponde a:
+* -I, para insertar un nuevo empleado. Si el empleado ya existe, se debe actualizar el salario del empleado
+* -A, para actualizar el salario. Si el empleado no existe, se debe insertar el empleado
+* -E, para eliminar un empleado. Si el empleado no existe, desplegar en la pantalla un mensaje adecuado a la situación que se produce
 */
 --Procedimiento de inserción (Hecho por mi)
 /*
