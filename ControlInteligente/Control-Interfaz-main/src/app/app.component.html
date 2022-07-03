@@ -1,0 +1,67 @@
+<!--<div class = "container d-flex flex-wrap">-->
+<div class = "container">
+  
+  <div class = "row">
+      
+    <div class="col-6 px-5">
+
+      <div class="card shadow p-5">
+          
+        <div class="row">
+
+          <div class="col-12">
+
+            <h2> Setpoint </h2>
+    
+            <input class="mt-2" [(ngModel)] = 'textoInput'>
+            <!--<input [ngModel]="textoInput | titlecase" 
+               (ngModelChange)="textoInput=$event" name="inputField" type="text" />-->
+
+          </div>
+
+          <div class="col-12">
+
+              <button class="btn-primary" (click)= "enviarDatos()"> Enviar </button>
+
+          </div>
+
+        </div>
+
+      </div>
+      
+    </div>
+
+    <div class="col-6 px-5">
+
+      <div class="card shadow p-5">
+
+        <div class="row">
+
+          <div class="col-12 ">
+
+            <h2> Guardar Datos</h2>
+
+          </div>
+
+        <div class="col-12">
+
+          <button class="btn-primary" (click)= "onDownload()"> Exportar Datos </button>
+
+        </div>
+
+       </div>
+
+      </div>
+      
+    </div>
+
+  </div>
+
+  <div class="col-12 m-4 p-5">
+    <div class="chart-container" style="width: 800px; height: 600px;">
+      <canvas id="my-chart">
+      </canvas>
+    </div>
+  </div>
+
+</div>
